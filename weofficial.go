@@ -143,12 +143,12 @@ func (cli *Client) AccessToken() (string, error) {
 		return token, nil
 	} else {
 
-		req := auth.GetStableAccessTokenRequest{
+		req := auth.GetAccessTokenRequest{
 			Appid:     cli.appid,
 			Secret:    cli.secret,
 			GrantType: "client_credential",
 		}
-		rsp, err := cli.NewAuth().GetStableAccessToken(&req)
+		rsp, err := cli.NewAuth().GetAccessToken(&req)
 		if err != nil {
 			return "", err
 		}

@@ -62,7 +62,7 @@ type TokenResponse struct {
 
 // access_token 缓存 KEY
 func (cli *Client) tokenCacheKey() string {
-	return fmt.Sprintf("weapp.%s.access.token", cli.appid)
+	return fmt.Sprintf("weofficial.%s.access.token", cli.appid)
 }
 
 func (cli *Client) GetAccessToken() (*TokenResponse, error) {
@@ -72,7 +72,6 @@ func (cli *Client) GetAccessToken() (*TokenResponse, error) {
 		"secret":     cli.secret,
 		"grant_type": "client_credential",
 	}
-
 	api := baseURL + apiGetAccessToken
 	url, err := request.EncodeURL(api, queries)
 	if err != nil {
