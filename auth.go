@@ -2,7 +2,8 @@ package weofficial
 
 import (
 	"fmt"
-	"weofficial/request"
+
+	"github.com/hankin-h-k/weofficial/request"
 )
 
 const (
