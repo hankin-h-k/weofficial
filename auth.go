@@ -129,6 +129,12 @@ func (cli *Client) getPaidUnionIDRequest(api string, queries requestQueries) (*G
 	return res, nil
 }
 
+/**
+ * 网页授权跳转链接
+ * @param redirect_uri 重定向链接
+ * @param state 重定向后携带参数
+ * @return string 跳转链接
+ */
 func (cli *Client) Authorize(redirect_uri, scope, state string) (string, error) {
 	baseURL := "https://open.weixin.qq.com"
 	apiAuthUrl := "/connect/oauth2/authorize"
@@ -151,6 +157,11 @@ func (cli *Client) authorize(api, redirect_uri, scope, state string) (string, er
 	return url + "#wechat_redirect", nil
 }
 
+/**
+ * 网页授权-code获取用户信息
+ * @param code 授权后的code 一次性
+ * @return SnsOauth2Response 用户信息
+ */
 func (cli *Client) Login(code string) (*SnsOauth2Response, error) {
 
 	api := baseURL + apiSnsOauth2
