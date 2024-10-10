@@ -10,6 +10,7 @@ import (
 	"github.com/hankin-h-k/weofficial/cache"
 	"github.com/hankin-h-k/weofficial/logger"
 	"github.com/hankin-h-k/weofficial/request"
+	"github.com/hankin-h-k/weofficial/server"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -231,4 +232,9 @@ func (cli *Client) combineURI(url string, req interface{}, withToken bool) (stri
 // 用户信息
 func (cli *Client) NewAuth() *auth.Auth {
 	return auth.NewAuth(cli.request, cli.combineURI)
+}
+
+// 微信通知监听服务
+func (cli *Client) NewServer(token, aesKey, mchID, apiKey string, validate bool, handler func(map[string]interface{}) map[string]interface{}) (*server.Server, error) {
+	return server.NewServer(cli.appid, token, aesKey, mchID, apiKey, validate, handler)
 }

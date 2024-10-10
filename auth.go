@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	apiLogin          = "/sns/jscode2session"
 	apiGetAccessToken = "/cgi-bin/token"
 	apiGetPaidUnionID = "/wxa/getpaidunionid"
+	apiSnsOauth2      = "/sns/oauth2/access_token"
 )
 
 // LoginResponse 返回给用户的数据
@@ -22,42 +22,22 @@ type LoginResponse struct {
 	UnionID string `json:"unionid"`
 }
 
-// Login 登录凭证校验。通过 wx.login 接口获得临时登录凭证 code 后传到开发者服务器调用此接口完成登录流程。
-//
-// appID 小程序 appID
-// secret 小程序的 app secret
-// code 小程序登录时获取的 code
-func (cli *Client) Login(code string) (*LoginResponse, error) {
-	api := baseURL + apiLogin
-	return cli.login(code, api)
-}
-
-func (cli *Client) login(code, api string) (*LoginResponse, error) {
-	queries := requestQueries{
-		"appid":      cli.appid,
-		"secret":     cli.secret,
-		"js_code":    code,
-		"grant_type": "authorization_code",
-	}
-
-	url, err := request.EncodeURL(api, queries)
-	if err != nil {
-		return nil, err
-	}
-
-	res := new(LoginResponse)
-	if err := cli.request.Get(url, res); err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
 // TokenResponse 获取 access_token 成功返回数据
 type TokenResponse struct {
 	request.CommonError
 	AccessToken string `json:"access_token"` // 获取到的凭证
 	ExpiresIn   uint   `json:"expires_in"`   // 凭证有效时间，单位：秒。目前是7200秒之内的值。
+}
+
+type SnsOauth2Response struct {
+	request.CommonError
+	AccessToken    string `json:"access_token"` // 获取到的凭证
+	ExpiresIn      uint   `json:"expires_in"`   // 凭证有效时间，单位：秒。目前是7200秒之内的值。
+	RefreshToken   string `json:"refresh_token"`
+	OpenID         string `json:"openid"`
+	Scope          string `json:"scope"`
+	IsSnapshotuser int    `json:"is_snapshotuser"`
+	UnionID        string `json:"unionid"`
 }
 
 // access_token 缓存 KEY
@@ -146,5 +126,52 @@ func (cli *Client) getPaidUnionIDRequest(api string, queries requestQueries) (*G
 		return nil, err
 	}
 
+	return res, nil
+}
+
+func (cli *Client) Authorize(redirect_uri, scope, state string) (string, error) {
+	baseURL := "https://open.weixin.qq.com"
+	apiAuthUrl := "/connect/oauth2/authorize"
+	api := baseURL + apiAuthUrl
+	return cli.authorize(api, redirect_uri, scope, state)
+}
+func (cli *Client) authorize(api, redirect_uri, scope, state string) (string, error) {
+	queries := requestQueries{
+		"appid":         cli.appid,
+		"redirect_uri":  redirect_uri,
+		"response_type": "code",
+		"scope":         scope,
+		"state":         state,
+	}
+
+	url, err := request.EncodeURL(api, queries)
+	if err != nil {
+		return url, err
+	}
+	return url + "#wechat_redirect", nil
+}
+
+func (cli *Client) Login(code string) (*SnsOauth2Response, error) {
+
+	api := baseURL + apiSnsOauth2
+	return cli.login(api, code)
+}
+
+func (cli *Client) login(api, code string) (*SnsOauth2Response, error) {
+	queries := requestQueries{
+		"appid":      cli.appid,
+		"secret":     cli.secret,
+		"code":       code,
+		"grant_type": "authorization_code",
+	}
+
+	url, err := request.EncodeURL(api, queries)
+	if err != nil {
+		return nil, err
+	}
+	res := new(SnsOauth2Response)
+	if err := cli.request.Get(url, res); err != nil {
+		return nil, err
+	}
 	return res, nil
 }
