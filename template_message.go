@@ -9,7 +9,7 @@ import (
 var (
 	apiAddTeamplate string = "/cgi-bin/template/api_add_template"
 	apiTemplateList string = "/cgi-bin/template/get_all_private_template"
-	ApiSendTemplate string = "/cgi-bin/message/template/send"
+	apiSendTemplate string = "/cgi-bin/message/template/send"
 )
 
 type AddTemplateResponse struct {
@@ -92,7 +92,7 @@ func (cli *Client) templateList(api, token string) (*TemplateListResponse, error
 }
 
 func (cli *Client) SendTemplate(param map[string]interface{}) (*SendTemplateResponse, error) {
-	api := baseURL + ApiSendTemplate
+	api := baseURL + apiSendTemplate
 
 	token, err := cli.AccessToken()
 	if err != nil {
